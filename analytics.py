@@ -14,11 +14,11 @@ def clean_and_prepare_data(df: pd.DataFrame):
     # Imputasi Missing Values
     if df_clean['client_credit_score'].isnull().sum() > 0:
         median_cs = df_clean['client_credit_score'].median()
-        df_clean['client_credit_score'].fillna(median_cs, inplace=True)
+        df_clean['client_credit_score'] = df_clean['client_credit_score'].fillna(median_cs)
         
     if df_clean['past_late_payments'].isnull().sum() > 0:
         mode_pl = df_clean['past_late_payments'].mode()[0]
-        df_clean['past_late_payments'].fillna(mode_pl, inplace=True)
+        df_clean['past_late_payments'] = df_clean['past_late_payments'].fillna(mode_pl)
         
     return df_clean
 

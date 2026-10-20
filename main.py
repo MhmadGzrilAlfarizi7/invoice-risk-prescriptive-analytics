@@ -121,17 +121,16 @@ def interactive_prediction(model, feature_names):
         has_dispute = 1 if dispute_str == 'y' else 0
         
         # Susun feature row
-        input_data = {
-            'invoice_amount': amount,
-            'payment_terms_days': terms,
-            'past_late_payments': delays,
-            'client_credit_score': credit_score,
-            'has_dispute': has_dispute
-        }
+        input_data = {col: 0 for col in feature_names}
+        input_data['invoice_amount'] = amount
+        input_data['payment_terms_days'] = terms
+        input_data['past_late_payments'] = delays
+        input_data['client_credit_score'] = credit_score
+        input_data['has_dispute'] = has_dispute
         
-        for ind in industries[1:]: # Dummy drop_first
-            col = f'ind_{ind}'
-            input_data[col] = 1 if ind_chosen == ind else 0
+        ind_col = f'ind_{ind_chosen}'
+        if ind_col in input_data:
+            input_data[ind_col] = 1
             
         input_df = pd.DataFrame([input_data])[feature_names]
         

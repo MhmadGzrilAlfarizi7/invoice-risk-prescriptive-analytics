@@ -13,6 +13,19 @@ st.set_page_config(
     layout="wide"
 )
 
+# Cegah Google Translate / browser auto-translate merusak React DOM
+st.markdown(
+    """
+    <meta name="google" content="notranslate" />
+    <style>
+        body, html {
+            -webkit-user-select: auto;
+        }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 DATA_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'invoices.csv')
 
 def load_data():
@@ -198,19 +211,18 @@ elif "4. Simulator Keputusan Bisnis" in page:
         submitted = st.form_submit_button("🔍 Jalankan Analisis & Dapatkan Rekomendasi", use_container_width=True)
         
     if submitted:
-        # Siapkan payload feature
-        input_data = {
-            'invoice_amount': amount,
-            'payment_terms_days': terms,
-            'past_late_payments': past_delays,
-            'client_credit_score': credit_score,
-            'has_dispute': dispute_val
-        }
+        # Siapkan payload feature berdasarkan kolom yang diharapkan model
+        input_data = {col: 0 for col in feature_names}
+        input_data['invoice_amount'] = amount
+        input_data['payment_terms_days'] = terms
+        input_data['past_late_payments'] = past_delays
+        input_data['client_credit_score'] = credit_score
+        input_data['has_dispute'] = dispute_val
         
-        industries = ['Konstruksi', 'Retail', 'Teknologi', 'Manufaktur', 'F&B', 'Logistik']
-        for ind in industries[1:]:
-            col = f'ind_{ind}'
-            input_data[col] = 1 if industry == ind else 0
+        # Set dummy variable industri jika kolomnya ada di feature_names
+        ind_col = f'ind_{industry}'
+        if ind_col in input_data:
+            input_data[ind_col] = 1
             
         input_df = pd.DataFrame([input_data])[feature_names]
         prob_default = model.predict_proba(input_df)[0][1]
